@@ -1,70 +1,120 @@
-# Getting Started with Create React App
+# Seat Management & Student Attendance Planner
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A full-stack, enterprise-grade web application for visual student seating arrangements and session-based attendance management.
 
-## Available Scripts
+## 🎯 Key Capabilities & Architecture
 
-In the project directory, you can run:
+- **Visual Theater-Style Seating Planner**: Configurable seating sections, dynamic row/column grids, horizontal and vertical orientation toggles, auto seat numbering.
+- **Strict Public Privacy**: Public visual seat map allowing students to find and highlight their seats by name/roll number **without exposing sensitive student records or attendance data**. Clicking seats on the public interface does not reveal student info.
+- **Admin Seating Management**: Manual assignment, atomic seat reassignment, seat swapping, and release controls with double-assignment prevention.
+- **Session-Based Attendance**: Independent attendance sessions (lectures, exams, workshops) with real-time seat map synchronization, present/absent/not-marked tracking, and bulk actions.
+- **Student Roster Management**: Full CRUD, flexible filtering, duplicate validation, and CSV / Excel bulk import and export.
+- **Attendance Analytics & Exports**: Live filtering by session, date, department, course, section, and status with direct CSV and Excel (`.xlsx`) downloads.
+- **Immutable Audit Trail**: Append-only administrative activity logs tracking seating changes, attendance marks, and imports with previous/new state inspection.
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🛠️ Technology Stack
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+| Layer | Technologies |
+|---|---|
+| **Frontend** | React 19, Vite, Tailwind CSS v4, Lucide React, Axios, React Router v7, React Hot Toast, PapaParse, XLSX |
+| **Backend** | Python 3.12, FastAPI, Pydantic v2, Motor (Async MongoDB), PyJWT, Bcrypt, SlowAPI, OpenPyXL |
+| **Database** | MongoDB 8 with indexed collections & referential consistency |
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🚀 Quick Start & Running Locally
 
-### `npm run build`
+### 1. Prerequisites
+- MongoDB running on `localhost:27017`
+- Conda environment `live` (Python 3.12)
+- Node.js (v20+) & npm
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 2. Backend Setup
+```bash
+# Activate conda environment
+conda activate live
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# Change to backend directory
+cd backend
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# Populate initial admin and sample institutional data
+python seed.py
 
-### `npm run eject`
+# Run FastAPI server
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+API Documentation (Swagger UI) is available at: `http://127.0.0.1:8000/docs`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 3. Frontend Setup
+```bash
+# In a new terminal, navigate to frontend
+cd frontend
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# Install dependencies (already installed)
+npm install
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+# Start Vite development server
+npm run dev -- --port 3000
+```
+Open your browser at: `http://127.0.0.1:3000`
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+---
 
-## Learn More
+## 🔐 Default Credentials
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+| Role | Username | Password | Access |
+|---|---|---|---|
+| **Administrator** | `admin` | `admin123` | Full administrative console at `/admin/login` |
+| **Public User** | None | None | Public visual seat chart & search at `/` |
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
+## 🧪 Running Backend Automated Tests
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+conda activate live
+cd backend
+python -m pytest tests/ -v
+```
 
-### Analyzing the Bundle Size
+All 6 test suites verify:
+1. API Health & Readiness
+2. Public Seating Privacy enforcement (ensures zero student personal info is leaked)
+3. Public Student Search Locator (ensures only minimal seat coordinates are exposed)
+4. Admin Authentication, JWT validation, and 401/403 protection
+5. Critical Seating Business Rules (single student per seat, single seat per student)
+6. Session-based attendance marking and percentage calculation
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
+## 📂 Project Structure
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
+seatplanner/
+├── backend/
+│   ├── app/
+│   │   ├── config.py             # Settings and environment variables
+│   │   ├── database.py           # Async Motor connection & index setup
+│   │   ├── main.py               # FastAPI entry point & CORS
+│   │   ├── middleware/           # SlowAPI rate limiter
+│   │   ├── models/               # MongoDB models
+│   │   ├── routers/              # 9 dedicated REST API routers
+│   │   ├── schemas/              # Pydantic validation schemas
+│   │   ├── services/             # Business logic & audit trail
+│   │   └── utils/                # Password hashing, JWT, helpers
+│   ├── seed.py                   # Realistic sample data seeder
+│   └── tests/                    # Pytest async test suite
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/           # Reusable UI & Modal components
+│   │   │   ├── SeatMap/          # Interactive theater grid & seat tiles
+│   │   │   └── StudentSearch.jsx # Debounced locator search
+│   │   ├── context/              # AuthContext & token management
+│   │   ├── pages/                # 10 full-featured application pages
+│   │   └── services/             # Axios API service modules
+│   ├── vite.config.js            # Vite config with API proxy
+│   └── package.json
+```
